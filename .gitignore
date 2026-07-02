@@ -1,8 +1,47 @@
 
-# Playwright
+# # Playwright
+# node_modules/
+# /test-results/
+# /playwright-report/
+# /blob-report/
+# /playwright/.cache/
+# /playwright/.auth/
+
+
+# ==========================
+# Dependencies
+# ==========================
 node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+
+# ==========================
+# Playwright Reports
+# ==========================
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# ==========================
+# Custom Reports
+# ==========================
+reports/
+
+# ==========================
+# Environment Files
+# ==========================
+.env
+.env.*
+!.env.example
+
+# ==========================
+# OS Files
+# ==========================
+.DS_Store
+Thumbs.db
+
+# ==========================
+# IDE Files
+# ==========================
+.vscode/settings.json
+.idea/
