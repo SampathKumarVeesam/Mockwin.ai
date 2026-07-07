@@ -1,81 +1,233 @@
-// @ts-check
-import { defineConfig, devices } from '@playwright/test';
+// // playwright.config.js
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+// const { defineConfig, devices } = require('@playwright/test');
+// const fs = require('fs');
+// const path = require('path');
 
-/**
- * @see https://playwright.dev/docs/test-configuration
- */
-export default defineConfig({
-  testDir: './tests',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+// // ==========================================
+// // LOAD .ENV FILE FROM PROJECT ROOT
+// // ==========================================
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
-  },
+// function loadEnv() {
+//     try {
+//         // Get the project root directory
+//         const projectRoot = path.resolve(__dirname);
+//         const envPath = path.join(projectRoot, '.env');
+        
+//         console.log(`Looking for .env at: ${envPath}`);
+        
+//         // Check if .env exists
+//         if (!fs.existsSync(envPath)) {
+//             console.log('.env file not found at:', envPath);
+//             console.log('Please create a .env file with your credentials');
+//             return;
+//         }
 
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+//         // Read and parse .env
+//         const envContent = fs.readFileSync(envPath, 'utf8');
+//         const lines = envContent.split('\n');
+        
+//         let loadedCount = 0;
+//         for (const line of lines) {
+//             const trimmed = line.trim();
+            
+//             // Skip comments and empty lines
+//             if (trimmed.startsWith('#') || trimmed === '') {
+//                 continue;
+//             }
+
+//             const equalsIndex = trimmed.indexOf('=');
+//             if (equalsIndex === -1) continue;
+
+//             const key = trimmed.substring(0, equalsIndex).trim();
+//             let value = trimmed.substring(equalsIndex + 1).trim();
+
+//             // Remove quotes if present
+//             if ((value.startsWith('"') && value.endsWith('"')) || 
+//                 (value.startsWith("'") && value.endsWith("'"))) {
+//                 value = value.substring(1, value.length - 1);
+//             }
+
+//             // Set environment variable if not already set
+//             if (key && value) {
+//                 process.env[key] = value;
+//                 loadedCount++;
+//             }
+//         }
+
+//         console.log(`Loaded ${loadedCount} environment variables from .env`);
+//         console.log('='.repeat(60));
+//         console.log('ENVIRONMENT VARIABLES:');
+//         console.log(`COMPANY_PORTAL_URL: ${process.env.COMPANY_PORTAL_URL || 'NOT SET'}`);
+//         console.log(`COMPANY_ADMIN_EMAIL: ${process.env.COMPANY_ADMIN_EMAIL || 'NOT SET'}`);
+//         console.log(`COMPANY_ADMIN_PASSWORD: ${process.env.COMPANY_ADMIN_PASSWORD ? '***' : 'NOT SET'}`);
+//         console.log('='.repeat(60));
+        
+//     } catch (error) {
+//         console.warn('Error loading .env:', error.message);
+//     }
+// }
+
+// // Load .env file
+// loadEnv();
+
+// // ==========================================
+// // PLAYWRIGHT CONFIGURATION
+// // ==========================================
+
+// module.exports = defineConfig({
+//     testDir: './tests',
+//     timeout: parseInt(process.env.DEFAULT_TIMEOUT) || 60000,
+//     fullyParallel: true,
+//     retries: 1,
+//     workers: parseInt(process.env.WORKERS) || 4,
+    
+//     projects: [
+//         {
+//             name: 'chromium',
+//             use: { ...devices['Desktop Chrome'] },
+//         },
+//         {
+//             name: 'firefox',
+//             use: { ...devices['Desktop Firefox'] },
+//         },
+//     ],
+    
+//     use: {
+//         baseURL: process.env.COMPANY_PORTAL_URL || 'https://portal.mockwin.ai',
+//         headless: process.env.HEADLESS === 'true',
+        
+//         launchOptions: {
+//             slowMo: parseInt(process.env.SLOW_MO) || 0,
+//         },
+        
+//         actionTimeout: 15000,
+//         navigationTimeout: 30000,
+        
+//         screenshot: 'only-on-failure',
+//         video: 'retain-on-failure',
+//         trace: 'retain-on-failure',
+//     },
+    
+//     reporter: [
+//         ['html', { outputFolder: 'reports/html' }],
+//         ['json', { outputFile: 'reports/test-results.json' }],
+//         ['list']
+//     ],
+    
+//     outputDir: 'reports/test-output/',
+// });
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+// playwright.config.js
+
+const { defineConfig, devices } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+function loadEnv() {
+    try {
+        const projectRoot = path.resolve(__dirname);
+        const envPath = path.join(projectRoot, '.env');
+        
+        console.log(`Looking for .env at: ${envPath}`);
+        
+        if (!fs.existsSync(envPath)) {
+            console.log('.env file not found at:', envPath);
+            console.log('Please create a .env file with your credentials');
+            return;
+        }
+
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        const lines = envContent.split('\n');
+        
+        let loadedCount = 0;
+        for (const line of lines) {
+            const trimmed = line.trim();
+            
+            if (trimmed.startsWith('#') || trimmed === '') {
+                continue;
+            }
+
+            const equalsIndex = trimmed.indexOf('=');
+            if (equalsIndex === -1) continue;
+
+            const key = trimmed.substring(0, equalsIndex).trim();
+            let value = trimmed.substring(equalsIndex + 1).trim();
+
+            if ((value.startsWith('"') && value.endsWith('"')) || 
+                (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.substring(1, value.length - 1);
+            }
+
+            if (key && value) {
+                process.env[key] = value;
+                loadedCount++;
+            }
+        }
+
+        console.log(`Loaded ${loadedCount} environment variables from .env`);
+        console.log('='.repeat(60));
+        console.log('ENVIRONMENT VARIABLES:');
+        console.log(`COMPANY_PORTAL_URL: ${process.env.COMPANY_PORTAL_URL || 'NOT SET'}`);
+        console.log(`COMPANY_ADMIN_EMAIL: ${process.env.COMPANY_ADMIN_EMAIL || 'NOT SET'}`);
+        console.log(`COMPANY_ADMIN_PASSWORD: ${process.env.COMPANY_ADMIN_PASSWORD ? '***' : 'NOT SET'}`);
+        console.log('='.repeat(60));
+        
+    } catch (error) {
+        console.warn('Error loading .env:', error.message);
+    }
+}
+
+loadEnv();
+
+module.exports = defineConfig({
+    testDir: './tests',
+    timeout: parseInt(process.env.DEFAULT_TIMEOUT) || 60000,
+    fullyParallel: true,
+    retries: 1,
+    workers: parseInt(process.env.WORKERS) || 4,
+    
+    projects: [
+        {
+            name: 'chromium',
+            use: { ...devices['Desktop Chrome'] },
+        },
+        {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+        },
+    ],
+    
+    use: {
+        baseURL: process.env.COMPANY_PORTAL_URL || 'https://portal.mockwin.ai',
+        headless: process.env.HEADLESS === 'true',
+        
+        launchOptions: {
+            slowMo: parseInt(process.env.SLOW_MO) || 0,
+        },
+        
+        actionTimeout: 15000,
+        navigationTimeout: 30000,
+        
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
     },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+    
+    reporter: [
+        ['html', { outputFolder: 'reports/html' }],
+        ['json', { outputFile: 'reports/test-results.json' }],
+        ['list']
+    ],
+    
+    outputDir: 'reports/test-output/',
 });
-
