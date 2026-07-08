@@ -401,7 +401,7 @@ test.describe('Company Login Tests', () => {
         console.log('\nTEST: Successful Login');
         console.log('-'.repeat(40));
         
-        await loginPage.takeScreenshot('before-login');
+        //await loginPage.takeScreenshot('before-login');
         
         console.log('Step 1: Logging in with valid credentials...');
         await loginPage.login(
@@ -412,7 +412,7 @@ test.describe('Company Login Tests', () => {
         console.log('Step 2: Verifying successful login...');
         await loginPage.verifySuccessfulLogin();
         
-        await loginPage.takeScreenshot('after-login');
+        //await loginPage.takeScreenshot('after-login');
         
         console.log('\nTEST PASSED: Login successful.');
     });

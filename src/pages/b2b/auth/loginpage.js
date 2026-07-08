@@ -313,7 +313,7 @@ class LoginPage {
         this.dashboardHeading = page.getByRole('heading', { name: 'Dashboard' });
         
         // ERROR MESSAGES
-        this.errorMessage = page.locator('[data-testid="company-login-error-message"]');
+        this.errorMessage = page.getByTestId('company-login-error-message');
     }
 
     // NAVIGATION METHODS
